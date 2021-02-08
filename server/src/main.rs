@@ -1,22 +1,23 @@
-#![feature(catch_panic)]
+// #![feature(catch_panic)]
 
 extern crate encoding;
 extern crate console;
 
 use encoding::{Encoding, EncoderTrap};
 use encoding::all::ASCII;
-use std::error;
+// use std::error;
 use std::net::{TcpListener, TcpStream};
 use std::thread;
-use std::io;
-use std::io::prelude::*;
-use std::io::BufWriter;
+// use std::io;
+// use std::io::prelude::*;
+// use std::io::BufWriter;
 use std::io::{Read, Write, Result};
 use std::str;
 use std::fs::File;
 use std::fs;
 
-use console::{Term, style};
+// use console::{Term, style};
+use console::{style};
 
 /*
 How my protocol works:
@@ -147,13 +148,13 @@ fn handle_client(mut stream: TcpStream) -> Result<String> {
                 let path = entry.path();
                 if !path.is_dir() {
                     //clean path from file name:
-                    let mut fullpath = String::from(entry.path().to_string_lossy());
+                    let fullpath = String::from(entry.path().to_string_lossy());
                     let filename = String::from(str::replace(&fullpath, "./src/shared", ""));
                     let trimmed = &filename[1..];
 
                     if trimmed == file_name
                     {
-                        let mut file = File::open(fullpath).unwrap();
+                        let file = File::open(fullpath).unwrap();
                         file_size = file.metadata().unwrap().len();
                         file_exists = true;
                     }
@@ -287,11 +288,11 @@ fn handle_client(mut stream: TcpStream) -> Result<String> {
                         let path = entry.path();
                         if !path.is_dir() {
                             //clean path from file name:
-                            let mut fullpath = String::from(entry.path().to_string_lossy());
+                            let fullpath = String::from(entry.path().to_string_lossy());
                             let filename = String::from(str::replace(&fullpath, "./src/shared", ""));
                             let trimmed = &filename[1..];
 
-                            let mut file = File::open(fullpath).unwrap();
+                            let file = File::open(fullpath).unwrap();
                             let file_size = file.metadata().unwrap().len();
 
                             //println!("{}  [{:?} bytes]", style(trimmed).green(), style(file_size).cyan());
@@ -313,8 +314,8 @@ fn handle_client(mut stream: TcpStream) -> Result<String> {
 
                     //we use these braces to limit the scope of the mutable borrow
                     {
-                        let mut slice: &str = str::from_utf8(&mut ls_bytes).unwrap();
-                        let mut slice_str = slice.to_string(); //convert slice to string
+                        let slice: &str = str::from_utf8(&mut ls_bytes).unwrap();
+                        let slice_str = slice.to_string(); //convert slice to string
                         //println!("{}", slice_str);
 
                         //calculate buffer size:
@@ -346,7 +347,7 @@ fn handle_client(mut stream: TcpStream) -> Result<String> {
 }
 
 fn main() {
-    let addr = "127.0.0.1:5555";
+    let addr = "127.0.0.1:8000";
     let listener = TcpListener::bind(addr).unwrap();
     println!("Listening on addr: {}", style(addr).yellow());
     for stream in listener.incoming() {
@@ -355,7 +356,7 @@ fn main() {
         .spawn(move || 
         {
             println!("new client [{}] connected", style(stream.peer_addr().unwrap().to_string()).green());
-            let h = handle_client(stream);
-        });
+            let _ = handle_client(stream);
+        }).unwrap();
     }
 }
