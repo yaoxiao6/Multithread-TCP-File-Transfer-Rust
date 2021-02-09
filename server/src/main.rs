@@ -2,6 +2,7 @@
 
 extern crate encoding;
 extern crate console;
+extern crate threadpool;
 
 use encoding::{Encoding, EncoderTrap};
 use encoding::all::ASCII;
@@ -9,12 +10,13 @@ use encoding::all::ASCII;
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 // use std::io;
-// use std::io::prelude::*;
+use std::io::prelude::*;
 // use std::io::BufWriter;
 use std::io::{Read, Write, Result};
 use std::str;
 use std::fs::File;
 use std::fs;
+use threadpool::ThreadPool;
 
 // use console::{Term, style};
 use console::{style};
@@ -350,6 +352,7 @@ fn main() {
     let addr = "127.0.0.1:8000";
     let listener = TcpListener::bind(addr).unwrap();
     println!("Listening on addr: {}", style(addr).yellow());
+    let pool = ThreadPool::new(4);
     for stream in listener.incoming() {
         let stream = stream.unwrap();
         thread::Builder::new().name(stream.peer_addr().unwrap().to_string())

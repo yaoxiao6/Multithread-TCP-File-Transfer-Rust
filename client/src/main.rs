@@ -17,7 +17,7 @@ use std::fs::File;
 use std::fs;
 use std::time::Duration;
 use std::thread;
-use pbr::ProgressBar;
+// use pbr::ProgressBar;
 use regex::Regex;
 
 //use std::fs::{DirEntry};
@@ -32,7 +32,7 @@ struct RemoteFileList {
     f_size: String
 }
 
-fn receive_file(file_name: String, mut stream: &mut TcpStream) -> String {
+fn receive_file(file_name: String, stream: &mut TcpStream) -> String {
 
     println!("file_name: {:?}", file_name);
     //let mut accumulator: String = String::new();
@@ -128,7 +128,7 @@ fn decode_message_size(mut ack_buf: &mut [u8]) -> String {
     msg_len_str
 }
 
-fn decode_message(msg_len_str: String, mut stream: &mut TcpStream) -> String{
+fn decode_message(msg_len_str: String, stream: &mut TcpStream) -> String{
     //read message itself
     let mut r = [0u8; BUFFERSIZE]; //8 byte buffer
     let mut accumulator: String = String::new();
@@ -169,7 +169,7 @@ fn decode_message(msg_len_str: String, mut stream: &mut TcpStream) -> String{
     accumulator
 }
 
-fn check_cmd(command: &str, mut stream: &mut TcpStream) -> Result<String, Box<error::Error + Send + Sync>> {
+fn check_cmd(command: &str, stream: &mut TcpStream) -> Result<String, Box<error::Error + Send + Sync>> {
 
     //get string size (in bytes)
     let mut string_size = command.len();
@@ -344,7 +344,7 @@ fn ls_local(){
     //}
 }
 
-fn ls_remote(command: &str, mut stream: &mut TcpStream) -> Result<String, Box<error::Error + Send + Sync>> {
+fn ls_remote(command: &str, stream: &mut TcpStream) -> Result<String, Box<error::Error + Send + Sync>> {
         //get string size (in bytes)
     let mut string_size = command.len();
     string_size = string_size + 1;
@@ -532,7 +532,7 @@ fn get_file(command: &str, mut stream: &mut TcpStream) -> Result<String, Box<err
 
 fn main() {
     //setup connection:
-    let mut stream = TcpStream::connect("127.0.0.1:5555") // try!(TcpStream::connect(HOST));
+    let mut stream = TcpStream::connect("127.0.0.1:8000") // try!(TcpStream::connect(HOST));
                                 .expect("Couldn't connect to the server...");
 
     println!("connection to server successful");
