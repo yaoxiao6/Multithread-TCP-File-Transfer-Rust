@@ -2,7 +2,8 @@
 
 extern crate encoding;
 extern crate console;
-extern crate threadpool;
+mod threadpool;
+use threadpool::*;
 
 use encoding::{Encoding, EncoderTrap};
 use encoding::all::ASCII;

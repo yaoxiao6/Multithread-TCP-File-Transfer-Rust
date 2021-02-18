@@ -2,6 +2,10 @@
 
 use std::thread;
 use std::sync::{mpsc, Arc, Mutex};
+use std::time::Duration;
+use std::fs;
+use std:: io::prelude::*;
+use std::net::{TcpListener, TcpStream};
 
 fn main(){}
 
@@ -10,11 +14,10 @@ pub struct ThreadPool{
     sender: mpsc::Sender<Job>,
 }
 
-struct Job;
-type Job = Box<FnOnce() + Send + 'static>;
+type Job = Box<dyn FnOnce() + Send + 'static>;
 
 impl ThreadPool{
-    fn new(size: usize) -> ThreadPool { 
+    pub fn new(size: usize) -> ThreadPool { 
         assert!(size > 0);
 
         let (sender, receiver) = mpsc::channel();
@@ -32,8 +35,8 @@ impl ThreadPool{
             sender,
         }
     }
-    
-    pub fn execute<F>(&self, f: F) where F: FnOnce() + Send + 'static {
+
+    pub fn execute<F>(&self, f: F) where F: FnOnce() + Send + 'static, {
         let job = Box::new(f);
         
         self.sender.send(job).unwrap();
@@ -47,13 +50,17 @@ struct Worker{
 
 impl Worker {
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
-        let thread = thread::spawn(|| {
-            receiver;
+        let thread = thread::spawn(move || loop {
+            let job = receiver.lock().unwrap().recv().unwrap();
+
+            println!("Worker {} got a job; executing.", id);
+
+            job();
         });
 
         Worker {
             id,
-            thread,
+            thread
         }
     }
 }
